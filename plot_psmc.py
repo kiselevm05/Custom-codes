@@ -82,11 +82,12 @@ def main():
     parser.add_argument('-f', '--files', nargs='+', required=True,
                         help='List of paths to input PSMC files (space-separated).')
     parser.add_argument('-o', '--output', default='psmc_plot.jpg',
-                        help='Output filename for the plot (supports .jpg, .pdf, .png).')
+                        help='Output path and filename for the plot (supports .jpg, .pdf, .png).')
 
     parser.add_argument('-c', '--conf-int', nargs='?', const='conf-int.csv', default=None,
                         help='Calculate 95%% bootstrap intervals (Pseudo-CI) and save to the specified CSV file. '
-                             'If no filename is provided, defaults to conf-int.csv.')
+                             'If no filename is provided, defaults to conf-int.csv.'
+                             'If output path is specified, uses a directory for the output file.')
 
     parser.add_argument('--legend', nargs='+', default=None,
                         help='Space-separated list of legend names corresponding to the input files.'
@@ -118,8 +119,15 @@ def main():
 
     csv_file = None
     csv_writer = None
+    csv_filepath = None
     if args.conf_int:
-        csv_file = open(args.conf_int, 'w', newline='')
+        if args.output:
+            csv_out_dir = os.path.dirname(os.path.abspath(args.output))
+            csv_base = os.path.basename(args.conf_int)
+            csv_filepath = os.path.join(csv_out_dir, csv_base)
+            csv_file = open(csv_filepath, 'w', newline='')
+        else:
+            csv_file = open(args.conf_int, 'w', newline='')
         csv_writer = csv.writer(csv_file)
         csv_writer.writerow(
             ['Source_File', 't_k_raw', 'Time_Years', 'Ne_Median(x10^4)', 'Ne_CI_2.5(x10^4)', 'Ne_CI_97.5(x10^4)'])
@@ -175,12 +183,12 @@ def main():
 
     if csv_file:
         csv_file.close()
-        print(f"Confidence intervals (Pseudo-CI) saved to: {args.conf_int}")
+        print(f"Confidence intervals saved to: {args.conf_int}")
 
     # X-axis configuration
     plt.xscale('log')
 
-    # Generation display logic
+    # Generation display
     if args.add_generations:
         plt.xlabel('Years (generations) before present, log scale')
 
