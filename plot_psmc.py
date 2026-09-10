@@ -86,12 +86,12 @@ def main():
 
     parser.add_argument('-c', '--conf-int', nargs='?', const='conf-int.csv', default=None,
                         help='Calculate 95%% bootstrap intervals (Pseudo-CI) and save to the specified CSV file. '
-                             'If no filename is provided, defaults to conf-int.csv.'
+                             'If no filename is provided, defaults to conf-int.csv. '
                              'If output path is specified, uses a directory for the output file.')
 
     parser.add_argument('--legend', nargs='+', default=None,
-                        help='Space-separated list of legend names corresponding to the input files.'
-                             'Legend is displayed only if there are 2 or more input files')
+                        help='Space-separated list of legend names corresponding to the input files. '
+                             'Legend is displayed only if there are 2 or more input files.')
     parser.add_argument('--legend-title', default='PSMC-files',
                         help='Legend title')
 
