@@ -15,8 +15,9 @@ def parse_psmc(filepath):
 
     blocks = content.split('//')
     results = []
-    theta_0 = 0.0
+    theta_0 = 0
     n_iter = 25
+    dt = 0
     skip_val = 100
 
     # Extract theta_0 and number of iterations from the header
@@ -26,6 +27,11 @@ def parse_psmc(filepath):
                 theta_0 = float(line.split()[1])
             except Exception:
                 pass
+        if line.startswith('DT') and len(line.split()) >= 2:
+            try:
+                dt = float(line.split()[1])
+            except Exception:
+                    pass
         if line.startswith('MM') and 'n_iterations:' in line:
             try:
                 n_iter_str = line.split('n_iterations:')[1].split(',')[0].strip()
@@ -69,7 +75,7 @@ def parse_psmc(filepath):
             if t_ks:
                 results.append((t_ks, lambda_ks))
 
-    return theta_0, skip_val, results
+    return theta_0, dt, skip_val, results
 
 
 def main():
@@ -154,7 +160,7 @@ def main():
         main_ne = []
 
         for j, (t_ks, lambda_ks) in enumerate(results):
-            scaled_t = [t * scale_t for t in t_ks]
+            scaled_t = [(t + dt) * scale_t for t in t_ks]
             scaled_ne = [l * n0 / 10000 for l in lambda_ks]
 
             if j == 0:
