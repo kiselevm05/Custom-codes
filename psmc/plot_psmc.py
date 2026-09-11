@@ -146,7 +146,7 @@ def main():
         else:
             label = os.path.basename(filepath)
 
-        theta_0, skip_val, results = parse_psmc(filepath)
+        theta_0, dt, skip_val, results = parse_psmc(filepath)
 
         if not results:
             print(f"Warning: No final results found in file {filepath}.")
