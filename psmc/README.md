@@ -2,7 +2,7 @@
 
 ## plot_psmc.py
 
-`The script plots PSMC results from multiple files considering bootstrap replicates. It also allows calculating bootstrap intervals (Pseudo-
+It is an alternative to `psmc_plot.pl` included in psmc conda package. The script plots PSMC results from multiple files considering bootstrap replicates. It also allows calculating bootstrap intervals (Pseudo-
 CI) and saving them to a CSV file.
 
 usage: plot_psmc.py [-h] -f FILES [FILES ...] [-o OUTPUT] [-c [CONF_INT]] [--legend LEGEND [LEGEND ...]] [--legend-title LEGEND_TITLE]
