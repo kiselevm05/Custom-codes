@@ -127,7 +127,6 @@ def main():
 
     csv_file = None
     csv_writer = None
-    csv_filepath = None
     if args.conf_int:
         if args.output:
             csv_out_dir = os.path.dirname(os.path.abspath(args.output))
@@ -196,55 +195,53 @@ def main():
     # X-axis configuration
     plt.xscale('log')
 
-    # Generation display
-    if args.add_generations:
-        plt.xlabel('Years (generations) before present')
+    # Create a formatter function for the X-axis tick labels
+    def x_formatter(x, pos):
+        if x <= 0:
+            return ""
 
-        # Create a formatter function for the X-axis tick labels
-        def x_formatter(x, pos):
-            if x <= 0:
-                return ""
-
-            year_str = ""
-            if args.format_numbers == 'k':
-                val = x / 1000.0
-                year_str = f"{val:.1f}" if val < 10 else f"{int(val)}"
-            elif args.format_numbers == 'full':
-                year_str = f"{x:.1f}" if x < 10 else f"{int(x):,}"
-            else:  # None
-                if not args.add_generations:
-                    return ""  # Let matplotlib handle default log format
-                year_str = f"{x:.1f}" if x < 10 else f"{int(x)}"
-
-            if args.add_generations:
-                gen_val = x / args.gen
-                gen_str = f"{gen_val:.1f}" if gen_val < 10 else f"{int(gen_val):,}"
-                return f"{year_str} ({gen_str})"
-
-            return year_str
-
-        # Determine X-axis label
+        year_str = ""
         if args.format_numbers == 'k':
-            if args.add_generations:
-                x_label = 'Thousand years (generations) before present'
-            else:
-                x_label = 'Thousand years before present'
+            val = x / 1000.0
+            year_str = f"{val:.1f}" if val < 10 else f"{int(val)}"
+        elif args.format_numbers == 'full':
+            year_str = f"{x:.1f}" if x < 10 else f"{int(x):,}"
+        else:  # None
+            if not args.add_generations:
+                return ""  # Let matplotlib handle default log format
+            year_str = f"{x:.1f}" if x < 10 else f"{int(x)}"
+
+        if args.add_generations:
+            gen_val = x / args.gen
+            gen_str = f"{gen_val:.1f}" if gen_val < 10 else f"{int(gen_val):,}"
+            return f"{year_str} ({gen_str})"
+
+        return year_str
+
+    # Determine X-axis label
+    if args.format_numbers == 'k':
+        if args.add_generations:
+            x_label = 'Thousand years (generations) before present'
         else:
-            if args.add_generations:
-                x_label = 'Years (generations) before present'
-            else:
-                x_label = 'Years before present'
+            x_label = 'Thousand years before present'
+    else:
+        if args.add_generations:
+            x_label = 'Years (generations) before present'
+        else:
+            x_label = 'Years before present'
 
-            # Add "log scale" to label if default formatting is used
-            if args.format_numbers is None:
-                x_label += ', log scale'
+        # Add "log scale" to label if default formatting is used
+        if args.format_numbers is None:
+            x_label += ', log scale'
 
-        plt.xlabel(x_label)
+    plt.xlabel(x_label)
 
-        # Apply formatter if not using default log scale
-        if args.format_numbers is not None or args.add_generations:
-            plt.gca().xaxis.set_major_formatter(ticker.FuncFormatter(x_formatter))
-            plt.gca().xaxis.set_minor_formatter(ticker.FuncFormatter(x_formatter))
+    # Apply formatter to major ticks only
+    if args.format_numbers is not None or args.add_generations:
+        plt.gca().xaxis.set_major_formatter(ticker.FuncFormatter(x_formatter))
+
+    # Hide minor tick labels in all cases
+    plt.gca().xaxis.set_minor_formatter(ticker.NullFormatter())
 
 
     plt.ylabel(r'Effective population size ($\times 10^4$)')
