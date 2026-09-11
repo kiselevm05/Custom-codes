@@ -195,6 +195,14 @@ def main():
     # X-axis configuration
     plt.xscale('log')
 
+    # Fill the zones of unreliable prediction with color.
+    # PSMC does not reliably resolve changes in effective population size
+    # that had occurred within the last 20,000 years.
+    # There is also another border of reliable results at about 100 kgbp (not kybp).
+    # However, I chose another right border more suitable for my results
+    plt.axvspan(args.min_x, 20000, color='lightgray', alpha=0.5, zorder=0)
+    plt.axvspan(500000, args.max_x, color='lightgray', alpha=0.5, zorder=0)
+
     # Create a formatter function for the X-axis tick labels
     def x_formatter(x, pos):
         if x <= 0:
@@ -243,7 +251,6 @@ def main():
     # Hide minor tick labels in all cases
     plt.gca().xaxis.set_minor_formatter(ticker.NullFormatter())
 
-
     plt.ylabel(r'Effective population size ($\times 10^4$)')
 
     # Apply axis limits
@@ -252,7 +259,7 @@ def main():
         plt.ylim(bottom=args.min_y, top=args.max_y)
 
     if len(args.files) >= 2:
-        plt.legend(title=args.legend_title)
+        plt.legend(title=args.legend_title, loc='upper left')
 
     plt.grid(True, which="both", ls="--", alpha=0.5)
 
