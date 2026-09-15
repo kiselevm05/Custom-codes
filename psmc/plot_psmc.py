@@ -77,6 +77,34 @@ def parse_psmc(filepath):
 
     return theta_0, dt, skip_val, results
 
+def add_geological_events(ax, long_periods, short_events):
+    """
+    Adds geological event annotations to the plot.
+    - Long periods: dark gray background shading (axvspan).
+    - Short events: red dashed vertical lines (axvline).
+    """
+    # Отрисовка продолжительных периодов (темно-серый фон)
+    if long_periods:
+        for period in long_periods:
+            try:
+                # Разбиваем строку вида '100000-500000' по дефису
+                start_str, end_str = period.split('-')
+                start_val = float(start_str)
+                end_val = float(end_str)
+                # zorder=0 отправляет заливку на самый нижний слой (под сетку и графики)
+                ax.axvspan(start_val, end_val, color='gray', alpha=0.5, zorder=0)
+            except ValueError:
+                print(f"Warning: Invalid format for long period '{period}'. Expected 'start-end'.")
+
+    # Отрисовка одиночных событий (красные пунктирные линии)
+    if short_events:
+        for event in short_events:
+            try:
+                event_val = float(event)
+                # zorder=1 ставит линию над фоном, но под кривыми PSMC (которые имеют zorder=2+)
+                ax.axvline(x=event_val, color='red', linestyle='--', linewidth=1.5, zorder=1)
+            except ValueError:
+                print(f"Warning: Invalid format for short event '{event}'. Expected a number.")
 
 def main():
     parser = argparse.ArgumentParser(
@@ -119,6 +147,13 @@ def main():
                         help='Display the number of generations on the X-axis in parentheses after the year value.')
     parser.add_argument('--format-numbers', nargs='?', const='full', default=None,
                         help='Format X-axis numbers. Use "k" for thousands of years, or no value for full comma-separated numbers.')
+
+    parser.add_argument('-l', '--long-periods', nargs='+', default=None,
+                        help='List of prolonged geological periods to shade dark gray. Format: "start-end" (e.g., 100000-500000).')
+    parser.add_argument('-s', '--short-periods', nargs='+', default=None,
+                        help='List of specific years for red dashed vertical lines (e.g., 160000).')
+    parser.add_argument('-d', '--shade',
+                        help='Shade zones of unconfident Ne estimation.')
 
     args = parser.parse_args()
 
@@ -195,13 +230,14 @@ def main():
     # X-axis configuration
     plt.xscale('log')
 
-    # Fill the zones of unreliable prediction with color.
-    # PSMC does not reliably resolve changes in effective population size
-    # that had occurred within the last 20,000 years.
-    # There is also another border of reliable results at about 100 kgbp (not kybp).
-    # However, I chose another right border more suitable for my results
-    plt.axvspan(args.min_x, 20000, color='lightgray', alpha=0.5, zorder=0)
-    plt.axvspan(500000, args.max_x, color='lightgray', alpha=0.5, zorder=0)
+    if args.shade:
+        # Fill the zones of unreliable prediction with color.
+        # PSMC does not reliably resolve changes in effective population size
+        # that had occurred within the last 20,000 years.
+        # There is also another border of reliable results at about 100 kgbp (not kybp).
+        # However, I chose another right border more suitable for my results
+        plt.axvspan(args.min_x, 20000, color='lightgray', alpha=0.5, zorder=0)
+        plt.axvspan(500000, args.max_x, color='lightgray', alpha=0.5, zorder=0)
 
     # Create a formatter function for the X-axis tick labels
     def x_formatter(x, pos):
@@ -257,6 +293,9 @@ def main():
     plt.xlim(left=args.min_x, right=args.max_x)
     if args.min_y is not None or args.max_y is not None:
         plt.ylim(bottom=args.min_y, top=args.max_y)
+
+    if args.long_periods or args.short_periods:
+        add_geological_events(plt.gca(), args.long_periods, args.short_periods)
 
     if len(args.files) >= 2:
         plt.legend(title=args.legend_title, loc='upper left')
