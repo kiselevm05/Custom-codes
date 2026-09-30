@@ -1,10 +1,10 @@
 # Custom-codes
 Here I store my scripts written to simplify my thorny path to becoming a professional bioinformatician
 
-# genome_assemblies
+## genome_assemblies
 
 Scripts for full genome assembly processing (decontamination, quality assessment etc.)
 
-# psmc
+## psmc
 
 Scripts for Pairwise Sequentially Markovian Coalescent analyses
