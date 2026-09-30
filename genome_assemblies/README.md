@@ -4,6 +4,6 @@
 
 The script visualises BUSCO results using short_summary.txt file from the program output
 
-## fcs_plot.py
+## fcs_plots.py
 
 The script builds a graphical intrpretation of NCBI-FCS-GX decontamination results
